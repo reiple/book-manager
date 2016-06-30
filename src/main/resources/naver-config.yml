@@ -1,0 +1,6 @@
+naver-api:
+    url: https://openapi.naver.com/v1/search/book_adv.xml
+    client-id-keyname: X-Naver-Client-Id
+    client-id-value: G1uhdWc23Mp1qZfkICfY
+    client-secret-keyname: X-Naver-Client-Secret
+    client-secret-value: kkivDsSWQr
