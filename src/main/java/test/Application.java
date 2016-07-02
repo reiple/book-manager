@@ -1,5 +1,6 @@
 package test;
 
+import com.google.gson.Gson;
 import io.limithot.naver.api.NaverApi;
 import io.limithot.naver.api.impl.NaverApiImpl;
 import io.limithot.naver.model.NaverBook;
@@ -18,11 +19,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static spark.Spark.get;
+import static spark.Spark.post;
 import static spark.Spark.staticFiles;
 
 /**
@@ -40,6 +40,7 @@ public class Application {
             String projectDir = System.getProperty("user.dir");
             String staticDir = "/src/main/resources/public";
             staticFiles.externalLocation(projectDir + staticDir);
+            //staticFiles.location("classpath:/META-INF/resources/webjars/");
         } else {
             staticFiles.location("/public");
         }
@@ -84,7 +85,8 @@ public class Application {
 
             NaverSearch search = new NaverSearch();
 
-            search.setIsbn("9791195618408");
+            //search.setIsbn("9791195618408");
+            search.setIsbn("9791125653677");
             try {
                 List<NaverBook> books = api.searchBook(search);
 
@@ -104,5 +106,62 @@ public class Application {
             return new ModelAndView(attributes, "hello.ftl");
 
         }, new FreeMarkerEngine());
+
+
+        get("/book", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+
+            return new ModelAndView(attributes, "book.ftl");
+
+        }, new FreeMarkerEngine());
+
+        post("/input.do", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+
+            String isbn = (String)req.queryParams("isbn");
+            System.out.println(isbn);
+
+            if(isbn != null && isbn.isEmpty() == false) {
+                SearchManager manager = new SearchManager();
+                List<NaverBook> bookList = manager.searchISBN(isbn);
+
+                for (NaverBook book : bookList) {
+                    String title = book.getTitle();
+                    attributes.put("message", title);
+                    attributes.put("book", book);
+                }
+
+            }
+
+            return new ModelAndView(attributes, "book.ftl");
+        }, new FreeMarkerEngine());
+
+        Gson gson = new Gson();
+
+        post("/search.do", (req, res) -> {
+
+            String isbn = (String)req.queryParams("isbn");
+            System.out.println(isbn);
+
+            NaverBook returnBook = null;
+
+            if(isbn != null && isbn.isEmpty() == false) {
+                SearchManager manager = new SearchManager();
+                List<NaverBook> bookList = manager.searchISBN(isbn);
+
+                for (NaverBook book : bookList) {
+                    String title = book.getTitle();
+                    System.out.println("TITLE: " + title);
+                    returnBook = book;
+                    String text = gson.toJson(returnBook, NaverBook.class);
+                    System.out.println("RESULT: " + text);
+                    break;
+                }
+            }
+
+
+
+            return returnBook;
+        }, gson::toJson);
     }
 }
