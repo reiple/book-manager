@@ -115,6 +115,9 @@ public class Application {
 
         }, new FreeMarkerEngine());
 
+
+        SaveManager saveManager = new SaveManager("i:/book.db3");
+
         post("/input.do", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
 
@@ -129,6 +132,8 @@ public class Application {
                     String title = book.getTitle();
                     attributes.put("message", title);
                     attributes.put("book", book);
+
+                    saveManager.writeBook(book);
                 }
 
             }
@@ -155,6 +160,9 @@ public class Application {
                     returnBook = book;
                     String text = gson.toJson(returnBook, NaverBook.class);
                     System.out.println("RESULT: " + text);
+
+                    saveManager.writeBook(book);
+
                     break;
                 }
             }
@@ -163,5 +171,36 @@ public class Application {
 
             return returnBook;
         }, gson::toJson);
+
+        get("/find.do", (req, res) -> {
+
+            List<NaverBook> bookList = saveManager.readBook("빈란드");
+
+            for(NaverBook book : bookList) {
+                String title = book.getTitle();
+
+                System.out.println(title);
+            }
+
+
+
+            return bookList;
+        }, gson::toJson);
+
+        get("/list.do", (req, res) -> {
+
+            List<NaverBook> bookList = saveManager.readList(100);
+
+            for(NaverBook book : bookList) {
+                String title = book.getTitle();
+
+                System.out.println(title);
+            }
+
+
+
+            return bookList;
+        }, gson::toJson);
+
     }
 }

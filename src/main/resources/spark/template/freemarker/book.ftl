@@ -100,6 +100,7 @@ ${message?if_exists}
                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                 ISBN
             </span>
+            <!--<input id="isbn" name="isbn" type="text" class="form-control" placeholder="ISBN"  value='9791125642954' aria-describedby="isbn-addon"/>-->
             <input id="isbn" name="isbn" type="text" class="form-control" placeholder="ISBN"  aria-describedby="isbn-addon"/>
 
 
